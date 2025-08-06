@@ -1,0 +1,13 @@
+get:
+  $ref: "./checkpoints_list.yaml"
+  summary: List Checkpoints
+  security:
+    - User-Restricted:
+        - read:self-assessment
+
+post:
+  $ref: "./checkpoints_create.yaml"
+  summary: Create a Checkpoint
+  security:
+    - User-Restricted:
+        - write:self-assessment

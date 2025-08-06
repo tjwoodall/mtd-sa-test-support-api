@@ -1,0 +1,121 @@
+post:
+  summary: Create a Test Business
+  description: |
+    This endpoint enables you to create a test business for use within the Sandbox environment.
+    
+    Customers may have multiple Self-Employment businesses, but only one of each Property business is allowed. 
+    MTD supports only one accounting period per year so this must be a full tax year period, for example April 6th to April 5th. 
+    Test businesses are automatically purged from the database 7 days after creation.
+
+  tags:
+    - Business Income Source
+
+  parameters:
+    - $ref: './common/pathParameters.yaml#/components/parameters/nino'
+    - $ref: './common/headers.yaml#/components/parameters/acceptHeader'
+    - $ref: './common/headers.yaml#/components/parameters/authorizationWriteScopeHeader'
+
+  security:
+    - User-Restricted:
+        - write:self-assessment
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: './schemas/businesses/create_request.json'
+        examples:
+          uk-property-request:
+            description:     Create a UK property request
+            value:
+              $ref: './examples/businesses/create_request_uk_property.json'
+          foreign-property-request:
+            description: Create a foreign property request
+            value:
+              $ref: './examples/businesses/create_request_foreign_property.json'
+          self-employment-business-request:
+            description: Create a self employment business request
+            value:
+              $ref: './examples/businesses/create_request_self_employment_business.json'
+
+  responses:
+    201:
+      description: Success
+      headers:
+        X-CorrelationId:
+          $ref: './common/headers.yaml#/components/parameters/correlationId'
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/businesses/create_response.json'
+          examples:
+            example-response:
+              description: Example Response
+              value:
+                $ref: './examples/businesses/create_response.json'
+
+    "400":
+      description: Bad request
+      headers:
+        X-CorrelationId:
+          $ref: './common/headers.yaml#/components/parameters/correlationId'
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/error_response.yaml'
+          examples:
+            FORMAT_NINO:
+              $ref: './common/errors.yaml#/components/examples/formatNino'
+            FORMAT_TYPE_OF_BUSINESS:
+              $ref: './common/errors.yaml#/components/examples/formatTypeOfBusiness'
+            FORMAT_DATE:
+              $ref: './common/errors.yaml#/components/examples/formatDate'
+            FORMAT_TAX_YEAR:
+              $ref: './common/errors.yaml#/components/examples/formatTaxYear'
+            FORMAT_ACCOUNTING_TYPE:
+              $ref: './common/errors.yaml#/components/examples/formatAccountingType'
+            FORMAT_POSTCODE:
+              $ref: './common/errors.yaml#/components/examples/formatPostcode'
+            FORMAT_LATENCY_INDICATOR:
+              $ref: './common/errors.yaml#/components/examples/formatLatencyIndicator'
+            MISSING_POSTCODE:
+              $ref: './common/errors.yaml#/components/examples/missingPostcode'
+            FORMAT_COUNTRY_CODE:
+              $ref: './common/errors.yaml#/components/examples/formatCountryCode'
+            RULE_COMMENCEMENT_DATE_NOT_SUPPORTED:
+              $ref: './common/errors.yaml#/components/examples/ruleCommencementDateNotSupported'
+            RULE_PROPERTY_BUSINESS_ADDED:
+              $ref: './common/errors.yaml#/components/examples/rulePropertyBusinessAdded'
+            RULE_INCORRECT_OR_EMPTY_BODY_SUBMITTED:
+              $ref: './common/errors.yaml#/components/examples/ruleIncorrectOrEmptyBodySubmitted'
+            RULE_TAX_YEAR_RANGE_INVALID:
+              $ref: './common/errors.yaml#/components/examples/ruleTaxYearRangeInvalid'
+            # 
+            MISSING_FIRST_ACCOUNTING_PERIOD_START_DATE:
+              $ref: './common/errors.yaml#/components/examples/missingFirstAccountingPeriodStartDate'
+            MISSING_FIRST_ACCOUNTING_PERIOD_END_DATE:
+              $ref: './common/errors.yaml#/components/examples/missingFirstAccountingPeriodEndDate'
+            RULE_FIRST_ACCOUNTING_DATE_RANGE_INVALID:
+              $ref: './common/errors.yaml#/components/examples/ruleFirstAccountingDateRangeInvalid'
+            RULE_UNEXPECTED_BUSINESS_ADDRESS:
+              $ref: './common/errors.yaml#/components/examples/ruleUnexpectedBusinessAddress'
+            RULE_MISSING_BUSINESS_ADDRESS:
+              $ref: './common/errors.yaml#/components/examples/ruleMissingBusinessAddress'
+            RULE_UNEXPECTED_TRADING_NAME:
+              $ref: './common/errors.yaml#/components/examples/ruleUnexpectedTradingName'
+            RULE_MISSING_TRADING_NAME:
+              $ref: './common/errors.yaml#/components/examples/ruleMissingTradingName'
+            # 
+
+    "403":
+      description: Forbidden
+      headers:
+        X-CorrelationId:
+          $ref: './common/headers.yaml#/components/parameters/correlationId'
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/error_response.yaml'
+          examples:
+            CLIENT_OR_AGENT_NOT_AUTHORISED:
+              $ref: './common/errors.yaml#/components/examples/clientOrAgentNotAuthorised'

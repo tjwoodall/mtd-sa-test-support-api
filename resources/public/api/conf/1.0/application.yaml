@@ -1,0 +1,52 @@
+openapi: "3.0.3"
+
+info:
+  version: "1.0"
+  title: Self Assessment Test Support (MTD)
+  description: |
+    # Changelog
+    The changelog is [available here](https://github.com/hmrc/income-tax-mtd-changelog/#readme).
+    
+    # Support
+    
+    * Direct reports of bugs or errors in Production or Sandbox code, or queries about HMRC business functionality (such as how a specific field is used by HMRC or why it is needed) to the [Software Development Support Team (SDST)](https://developer.service.hmrc.gov.uk/developer/support).
+    * Send queries or feedback related to the design of the APIs (including recommended changes) using the [income-tax-mtd-changelog](https://github.com/hmrc/income-tax-mtd-changelog/issues) GitHub page.
+    * <a href="/contact/report-technical-problem?newTab=true&service=api-documentation-frontend" target="_blank">Is this page not working properly? (opens in new tab)</a>
+
+servers:
+  - url: https://test-api.service.hmrc.gov.uk
+    description: Sandbox
+
+components:
+  securitySchemes:
+    User-Restricted:
+      type: oauth2
+      description: HMRC supports OAuth 2.0 for authenticating [User-restricted](https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/user-restricted-endpoints) API requests
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.service.hmrc.gov.uk/oauth/authorize
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          refreshUrl: https://api.service.hmrc.gov.uk/oauth/refresh
+          scopes:
+            write:self-assessment: Grant write access
+            read:self-assessment: Grant read access
+
+paths:
+  /individuals/self-assessment-test-support/vendor-state:
+    $ref: "./vendor_state.yaml"
+  # 
+  /individuals/self-assessment-test-support/vendor-state/checkpoints:
+    $ref: "./checkpoints_1.yaml"
+  /individuals/self-assessment-test-support/vendor-state/checkpoints/{checkpointId}:
+    $ref: "./checkpoints_delete.yaml"
+  /individuals/self-assessment-test-support/vendor-state/checkpoints/{checkpointId}/restore:
+    $ref: "./checkpoints_restore.yaml"
+  # 
+  /individuals/self-assessment-test-support/business/{nino}:
+    $ref: "./business_create.yaml"
+  /individuals/self-assessment-test-support/business/{nino}/{businessId}:
+    $ref: "./business_delete.yaml"
+  # 
+  /individuals/self-assessment-test-support/itsa-status/{nino}/{taxYear}:
+    $ref: "./itsa_status_create_amend.yaml"
+  # 

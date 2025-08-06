@@ -1,0 +1,68 @@
+delete:
+  summary: Delete a Checkpoint
+  description: |
+    This endpoint enables you to delete a checkpoint created in the sandbox, specified with a ‘checkpointId’.
+    
+    Any checkpoint that is not deleted is automatically removed from the database 7 days after its creation.
+    
+    Checkpoints can only be deleted with this endpoint. Deleting data with the Delete Stateful Test Data endpoint will not delete checkpoints.
+  
+    **Note**: To prevent data loss or unexpected behaviour, the checkpoint delete should not be performed while other stateful checkpoint operations are in progress for the same National Insurance number.
+
+  tags:
+    - Checkpoint for Vendor Data
+
+  security:
+    - User-Restricted:
+        - write:self-assessment
+  parameters:
+    - $ref: './common/headers.yaml#/components/parameters/acceptHeader'
+    - $ref: './common/headers.yaml#/components/parameters/authorizationWriteScopeHeader'
+    - $ref: './common/pathParameters.yaml#/components/parameters/checkpointId'
+
+  responses:
+    204:
+      description: Success
+      headers:
+        X-CorrelationId:
+          $ref: './common/headers.yaml#/components/parameters/correlationId'
+
+    400:
+      description: Bad Request
+      headers:
+        X-CorrelationId:
+          $ref: './common/headers.yaml#/components/parameters/correlationId'
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/error_response.yaml'
+          examples:
+            FORMAT_CHECKPOINT_ID:
+              $ref: './common/errors.yaml#/components/examples/formatCheckpointId'
+
+    403:
+      description: Forbidden
+      headers:
+        X-CorrelationId:
+          $ref: './common/headers.yaml#/components/parameters/correlationId'
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/error_response.yaml'
+          examples:
+            CLIENT_OR_AGENT_NOT_AUTHORISED:
+              $ref: './common/errors.yaml#/components/examples/clientOrAgentNotAuthorised'
+
+
+    404:
+      description: Not Found
+      headers:
+        X-CorrelationId:
+          $ref: './common/headers.yaml#/components/parameters/correlationId'
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/error_response.yaml'
+          examples:
+            MATCHING_RESOURCE_NOT_FOUND:
+              $ref: './common/errors.yaml#/components/examples/notFoundCheckpointId'
