@@ -5,6 +5,11 @@ description: |
   Any stateful test data that has not been deleted by the developer is automatically deleted from database 7 days after 
   its creation.
 
+parameters:
+  - $ref: './common/queryParameters.yaml#/components/parameters/ninoDeleteData'
+  - $ref: './common/headers.yaml#/components/parameters/acceptHeader'
+  - $ref: './common/headers.yaml#/components/parameters/authorizationWriteScopeHeader'
+
 security:
   - User-Restricted:
       - write:self-assessment
