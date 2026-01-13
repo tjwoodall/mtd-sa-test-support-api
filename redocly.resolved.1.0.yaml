@@ -1,0 +1,1438 @@
+openapi: 3.0.3
+info:
+  version: '1.0'
+  title: Self Assessment Test Support (MTD)
+  description: |
+    # Changelog
+    The changelog is [available here](https://github.com/hmrc/income-tax-mtd-changelog/#readme).
+
+    # Support
+
+    * Direct reports of bugs or errors in Production or Sandbox code, or queries about HMRC business functionality (such as how a specific field is used by HMRC or why it is needed) to the [Software Development Support Team (SDST)](https://developer.service.hmrc.gov.uk/developer/support).
+    * Send queries or feedback related to the design of the APIs (including recommended changes) using the [income-tax-mtd-changelog](https://github.com/hmrc/income-tax-mtd-changelog/issues) GitHub page.
+    * <a href="/contact/report-technical-problem?newTab=true&service=api-documentation-frontend" target="_blank">Is this page not working properly? (opens in new tab)</a>
+servers:
+  - url: https://test-api.service.hmrc.gov.uk
+    description: Sandbox
+paths:
+  /individuals/self-assessment-test-support/vendor-state:
+    delete:
+      summary: Delete Stateful Test Data
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      parameters:
+        - in: query
+          name: nino
+          description: |
+            National Insurance number, in the format `AA999999A`. 
+
+            If supplied, the endpoint deletes only stateful test data stored against the vendor that is associated with the specified National Insurance number.
+          schema:
+            type: string
+            example: TC663795B
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: &ref_3
+            type: string
+            enum:
+              - application/vnd.hmrc.1.0+json
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: &ref_4
+            type: string
+            example: Bearer bb7fed3fe10dd235a2ccda3d50fb
+          required: true
+      description: |
+        This endpoint allows a developer to delete stateful test data supplied by them in the sandbox environment.
+        When the endpoint is called, all stateful test data stored against the vendor is deleted from the sandbox database.
+        Any stateful test data that has not been deleted by the developer is automatically deleted from database 7 days after 
+        its creation.
+      responses:
+        '204':
+          description: Success
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: &ref_0
+                type: string
+                example: c75f40a6-a3df-4429-a697-471eeec46435
+              required: true
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: &ref_1
+                  code:
+                    description: The error code
+                    type: string
+                  message:
+                    description: The error message
+                    type: string
+                required: &ref_2
+                  - code
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: &ref_5
+                    code: CLIENT_OR_AGENT_NOT_AUTHORISED
+                    message: The client and/or agent is not authorised
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: The remote endpoint has indicated that no data can be found for the given vendor.
+                  value: &ref_11
+                    code: MATCHING_RESOURCE_NOT_FOUND
+                    message: Matching resource not found
+  /individuals/self-assessment-test-support/vendor-state/checkpoints:
+    get:
+      summary: List Checkpoints
+      security:
+        - User-Restricted:
+            - read:self-assessment
+      description: |
+        This endpoint enables you to get all the checkpoints created for the vendor ID. 
+        A National Insurance number can be provided to filter the results based on National Insurance number.
+      tags:
+        - Checkpoint for Vendor Data
+      parameters:
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_3
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_4
+          required: true
+        - in: query
+          name: nino
+          description: |
+            National Insurance number, in the format `AA999999A`.
+          schema:
+            type: string
+            example: TC663795B
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                $schema: http://json-schema.org/draft-04/schema#
+                title: List checkpoints
+                type: object
+                properties:
+                  checkpoints:
+                    type: array
+                    description: The array holding all the checkpoint details.
+                    items:
+                      type: object
+                      properties:
+                        checkpointId:
+                          type: string
+                          description: The unique identifier of the checkpoint.
+                          pattern: ^[A-Za-z0-9]{36}$
+                          example: a1e8057e-fbbc-47a8-a8b4-78d9f015c253
+                        checkpointCreationTimestamp:
+                          type: string
+                          description: 'The timestamp of when the checkpoint was created in ISO 8601 UTC format: `YYYY-MM-DDThh:mm:ss.SSSZ`.'
+                          example: ' 2019-07-13T07:51:43.112Z'
+                      required:
+                        - checkpointId
+                        - checkpointCreationTimestamp
+                additionalProperties: false
+              examples:
+                example-response:
+                  description: Example Response
+                  value:
+                    checkpoints:
+                      - checkpointId: a1c8057e-fbbc-47a8-a8b4-78d9f015c253
+                        nino: TC663795B
+                        checkpointCreationTimestamp: '2019-07-13T07:51:43.112Z'
+                      - checkpointId: b2e4050e-fbbc-47a8-d5b4-65d9f015c253
+                        nino: RC972995B
+                        checkpointCreationTimestamp: '2019-07-13T08:12:01.571Z'
+        '400':
+          description: Bad Request
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO is not valid.
+                  value: &ref_6
+                    code: FORMAT_NINO
+                    message: The provided NINO is invalid
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_5
+    post:
+      summary: Create a Checkpoint
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      description: |
+        This endpoint enables you to set up a checkpoint for the stateful data in the sandbox environment for a given National Insurance number.
+
+        A National Insurance number must be provided.
+
+        You can reset the data back to the checkpoint created using the 'Restore to Checkpoint' endpoint.
+
+        **Note**: To prevent data loss or unexpected behaviour, the checkpoint restore should not be performed while any other stateful or checkpoint operations are in progress for the same National Insurance number.
+      tags:
+        - Checkpoint for Vendor Data
+      parameters:
+        - in: query
+          required: true
+          name: nino
+          description: |
+            National Insurance number, in the format `AA999999A`.
+          schema:
+            type: string
+            example: TC663795B
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_3
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_4
+          required: true
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                $schema: http://json-schema.org/draft-04/schema#
+                title: Create a checkpoint
+                type: object
+                properties:
+                  checkpointId:
+                    type: string
+                    description: The unique identifier of the checkpoint.
+                    pattern: ^[A-Za-z0-9\-]{36}$
+                additionalProperties: false
+              examples:
+                example-response:
+                  description: Example Response
+                  value:
+                    checkpointId: a1e8057e-fbbc-47a8-a8b4-78d9f015c253
+        '400':
+          description: Bad Request
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO is not valid.
+                  value: *ref_6
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_5
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: No records were found for the passed NINO to create a checkpoint.
+                  value:
+                    code: MATCHING_RESOURCE_NOT_FOUND
+                    message: Matching resource not found
+  /individuals/self-assessment-test-support/vendor-state/checkpoints/{checkpointId}:
+    delete:
+      summary: Delete a Checkpoint
+      description: |
+        This endpoint enables you to delete a checkpoint created in the sandbox, specified with a ‘checkpointId’.
+
+        Any checkpoint that is not deleted is automatically removed from the database 7 days after its creation.
+
+        Checkpoints can only be deleted with this endpoint. Deleting data with the Delete Stateful Test Data endpoint will not delete checkpoints.
+
+        **Note**: To prevent data loss or unexpected behaviour, the checkpoint delete should not be performed while other stateful checkpoint operations are in progress for the same National Insurance number.
+      tags:
+        - Checkpoint for Vendor Data
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      parameters:
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_3
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_4
+          required: true
+        - in: path
+          name: checkpointId
+          required: true
+          description: |
+            The unique identifier of the checkpoint returned by the 'Create a checkpoint' endpoint. Format: ^[A-Za-z0-9\-]{36}$
+          schema: &ref_7
+            type: string
+            example: a1e8057e-fbbc-47a8-a8b4-78d9f015c253
+      responses:
+        '204':
+          description: Success
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+        '400':
+          description: Bad Request
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                FORMAT_CHECKPOINT_ID:
+                  description: The format of the supplied Checkpoint ID field is not valid.
+                  value: &ref_8
+                    code: FORMAT_CHECKPOINT_ID
+                    message: The provided checkpoint ID is invalid
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_5
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: No checkpoint found for the passed Checkpoint ID.
+                  value: &ref_9
+                    code: MATCHING_RESOURCE_NOT_FOUND
+                    message: Matching resource not found
+  /individuals/self-assessment-test-support/vendor-state/checkpoints/{checkpointId}/restore:
+    post:
+      summary: Restore to Checkpoint
+      description: |
+        This endpoint enables you to reset the stateful data back to the checkpoint created in the sandbox environment.
+
+        A valid checkpoint ID must be provided.
+
+        When you restore the checkpoint, the modified date of the data will be updated to the restored date.
+
+        **Note**: To prevent data loss or unexpected behaviour, the checkpoint restore should not be performed while any other stateful or checkpoint operations are in progress for the same National Insurance number.
+      tags:
+        - Checkpoint for Vendor Data
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      parameters:
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_3
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_4
+          required: true
+        - in: path
+          name: checkpointId
+          required: true
+          description: |
+            The unique identifier of the checkpoint returned by the 'Create a checkpoint' endpoint. Format: ^[A-Za-z0-9\-]{36}$
+          schema: *ref_7
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+        '400':
+          description: Bad Request
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                FORMAT_CHECKPOINT_ID:
+                  description: The format of the supplied Checkpoint ID field is not valid.
+                  value: *ref_8
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_5
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: No checkpoint found for the passed Checkpoint ID.
+                  value: *ref_9
+  /individuals/self-assessment-test-support/business/{nino}:
+    post:
+      summary: Create a Test Business
+      description: |
+        This endpoint enables you to create a test business for use within the Sandbox environment.
+
+        Customers may have multiple Self-Employment businesses, but only one of each Property business is allowed. 
+        MTD supports only one accounting period per year so this must be a full tax year period, for example April 6th to April 5th. 
+        Test businesses are automatically purged from the database 7 days after creation.
+      tags:
+        - Business Income Source
+      parameters:
+        - name: nino
+          in: path
+          description: |
+            National Insurance number.
+          schema: &ref_10
+            type: string
+            pattern: ^((?!(BG|GB|KN|NK|NT|TN|ZZ)|(D|F|I|Q|U|V)[A-Z]|[A-Z](D|F|I|O|Q|U|V))[A-Z]{2})[0-9]{6}[A-D]$
+            example: TC663795B
+          required: true
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_3
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_4
+          required: true
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $schema: http://json-schema.org/draft-04/schema#
+              title: Create a Test Business
+              type: object
+              properties:
+                typeOfBusiness:
+                  type: string
+                  description: The type of business income source.
+                  enum:
+                    - self-employment
+                    - uk-property
+                    - foreign-property
+                    - property-unspecified
+                tradingName:
+                  type: string
+                  description: |-
+                    The trading name of the business.
+
+                    Forbidden for property businesses.
+
+                    Mandatory for self-employment businesses.
+                  example: ABC Ltd.
+                firstAccountingPeriodStartDate:
+                  type: string
+                  description: The first accounting period start date
+                  format: YYYY-MM-DD
+                  example: '2019-09-30'
+                firstAccountingPeriodEndDate:
+                  type: string
+                  description: The first accounting period end date
+                  format: YYYY-MM-DD
+                  example: '2020-02-29'
+                latencyDetails:
+                  type: object
+                  description: Income source latency details
+                  properties:
+                    latencyEndDate:
+                      type: string
+                      description: End date of latency period for the income source.
+                      example: '2020-02-27'
+                      format: YYYY-MM-DD
+                    taxYear1:
+                      type: string
+                      description: First tax year for the income source.
+                      example: 2018-19
+                      format: YYYY-YY
+                      minimum: 7
+                      maximum: 7
+                    latencyIndicator1:
+                      type: string
+                      description: Self assessment submission frequency ('A' - Annual, 'Q' - Quarterly).
+                      enum:
+                        - A
+                        - Q
+                      example: A
+                    taxYear2:
+                      type: string
+                      description: Second tax year for the income source.
+                      example: 2019-20
+                      format: YYYY-YY
+                      minimum: 7
+                      maximum: 7
+                    latencyIndicator2:
+                      type: string
+                      description: Self assessment submission frequency ('A' - Annual, 'Q' - Quarterly).
+                      enum:
+                        - A
+                        - Q
+                      example: A
+                  required:
+                    - latencyEndDate
+                    - taxYear1
+                    - latencyIndicator1
+                    - taxYear2
+                    - latencyIndicator2
+                quarterlyTypeChoice:
+                  type: object
+                  description: Quarterly reporting period type
+                  properties:
+                    quarterlyPeriodType:
+                      description: The quarterly period type that is being chosen for the business ID.
+                      type: string
+                      enum:
+                        - standard
+                        - calendar
+                    taxYearOfChoice:
+                      description: The tax year for which the quarterly period type was chosen.
+                      type: string
+                      format: ^2[0-9]{3}-[0-9]{2}$
+                accountingType:
+                  description: CASH if you used the cash basis, money actually received and paid out, to calculate your income and expenses. Otherwise ACCRUALS.
+                  type: string
+                  enum:
+                    - CASH
+                    - ACCRUALS
+                commencementDate:
+                  description: Business start date, must be in the past.
+                  type: string
+                  format: YYYY-MM-DD
+                  example: '2016-09-24'
+                cessationDate:
+                  description: Business cessation date.
+                  type: string
+                  format: YYYY-MM-DD
+                  example: '2020-03-24'
+                businessAddressLineOne:
+                  description: |-
+                    First line of the business address.
+
+                    Forbidden for property businesses.
+
+                    Mandatory for self-employment businesses.
+                  type: string
+                  maximum: 35
+                  example: 1 ABC Rd.
+                businessAddressLineTwo:
+                  description: |-
+                    Second line of the business address.
+
+                    Forbidden for property businesses.
+                  type: string
+                  maximum: 35
+                  example: London
+                businessAddressLineThree:
+                  description: |-
+                    Third line of the business address.
+
+                    Forbidden for property businesses.
+                  type: string
+                  maximum: 35
+                  example: Greater London
+                businessAddressLineFour:
+                  description: |-
+                    Fourth line of the business address.
+
+                    Forbidden for property businesses.
+                  type: string
+                  maximum: 35
+                  example: United Kingdom
+                businessAddressPostcode:
+                  description: |-
+                    Business postcode.
+
+                    Forbidden for property businesses.
+
+                    Mandatory for self-employment businesses if businessAddressCountryCode "GB" is provided.
+                  pattern: ^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}|BFPO\s?[0-9]{1,10}$
+                  type: string
+                  example: M1 1AG
+                businessAddressCountryCode:
+                  description: |-
+                    The two letter code for a country must adhere to ISO 3166.
+
+                    Forbidden for property businesses.
+
+                    Mandatory for self-employment businesses.
+                  type: string
+                  example: GB
+              required:
+                - typeOfBusiness
+              additionalProperties: false
+            examples:
+              uk-property-request:
+                description: Create a UK property request
+                value:
+                  typeOfBusiness: uk-property
+                  firstAccountingPeriodStartDate: '2021-04-06'
+                  firstAccountingPeriodEndDate: '2022-04-05'
+                  latencyDetails:
+                    latencyEndDate: '2023-04-06'
+                    taxYear1: 2021-22
+                    latencyIndicator1: A
+                    taxYear2: 2022-23
+                    latencyIndicator2: Q
+                  quarterlyTypeChoice:
+                    quarterlyPeriodType: standard
+                    taxYearOfChoice: 2022-23
+                  accountingType: CASH
+                  commencementDate: '2020-04-06'
+                  cessationDate: '2025-04-06'
+              foreign-property-request:
+                description: Create a foreign property request
+                value:
+                  typeOfBusiness: foreign-property
+                  firstAccountingPeriodStartDate: '2021-04-06'
+                  firstAccountingPeriodEndDate: '2022-04-05'
+                  latencyDetails:
+                    latencyEndDate: '2023-04-06'
+                    taxYear1: 2021-22
+                    latencyIndicator1: A
+                    taxYear2: 2022-23
+                    latencyIndicator2: Q
+                  quarterlyTypeChoice:
+                    quarterlyPeriodType: standard
+                    taxYearOfChoice: 2023-24
+                  accountingType: CASH
+                  commencementDate: '2020-04-06'
+                  cessationDate: '2025-04-06'
+              self-employment-business-request:
+                description: Create a self employment business request
+                value:
+                  typeOfBusiness: self-employment
+                  tradingName: MyBusiness Pvt Ltd
+                  firstAccountingPeriodStartDate: '2020-04-06'
+                  firstAccountingPeriodEndDate: '2021-04-05'
+                  latencyDetails:
+                    latencyEndDate: '2022-04-06'
+                    taxYear1: 2020-21
+                    latencyIndicator1: A
+                    taxYear2: 2021-22
+                    latencyIndicator2: Q
+                  quarterlyTypeChoice:
+                    quarterlyPeriodType: standard
+                    taxYearOfChoice: 2023-24
+                  accountingType: CASH
+                  commencementDate: '2020-04-06'
+                  cessationDate: '2025-04-06'
+                  businessAddressLineOne: 221b Baker Street
+                  businessAddressLineTwo: Marylebone
+                  businessAddressLineThree: London
+                  businessAddressLineFour: England
+                  businessAddressPostcode: NW1 6XE
+                  businessAddressCountryCode: GB
+      responses:
+        '201':
+          description: Success
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                $schema: http://json-schema.org/draft-04/schema#
+                title: Create a Test Business
+                type: object
+                properties:
+                  businessId:
+                    type: string
+                    description: A unique identifier for the business income source.
+                    pattern: ^X[A-Z0-9]{1}IS[0-9]{11}$
+                additionalProperties: false
+              examples:
+                example-response:
+                  description: Example Response
+                  value:
+                    businessId: XAIS12345678910
+        '400':
+          description: Bad request
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO is not valid.
+                  value: *ref_6
+                FORMAT_TYPE_OF_BUSINESS:
+                  description: |
+                    The format of the type of business field is not valid.
+                  value:
+                    code: FORMAT_TYPE_OF_BUSINESS
+                    message: The provided typeOfBusiness field is invalid
+                FORMAT_DATE:
+                  description: |
+                    The supplied date format is not valid.
+                  value:
+                    code: FORMAT_DATE
+                    message: The supplied date format is not valid
+                FORMAT_TAX_YEAR:
+                  description: The format of the supplied taxYear value is not valid.
+                  value: &ref_12
+                    code: FORMAT_TAX_YEAR
+                    message: The provided tax year is invalid
+                FORMAT_ACCOUNTING_TYPE:
+                  description: |
+                    The format of the accounting type field is not valid.
+                  value:
+                    code: FORMAT_ACCOUNTING_TYPE
+                    message: The provided accountingType field is invalid
+                FORMAT_POSTCODE:
+                  description: |
+                    The format of the postcode field is not valid.
+                  value:
+                    code: FORMAT_POSTCODE
+                    message: The provided businessAddressPostcode is invalid
+                FORMAT_LATENCY_INDICATOR:
+                  description: |
+                    The format of a latency indicator fields must be "A" or "Q".
+                  value:
+                    code: FORMAT_LATENCY_INDICATOR
+                    message: The format of a latency indicator field is incorrect
+                MISSING_POSTCODE:
+                  description: |
+                    The businessAddressPostcode is mandatory when businessAddressCountryCode is "GB".
+                  value:
+                    code: MISSING_POSTCODE
+                    message: Missing postcode
+                FORMAT_COUNTRY_CODE:
+                  description: |
+                    The businessAddressCountryCode must be an ISO3166 2-letter country code.
+                  value:
+                    code: FORMAT_COUNTRY_CODE
+                    message: The provided country code is invalid
+                RULE_COMMENCEMENT_DATE_NOT_SUPPORTED:
+                  description: |
+                    The commencement date specified is not in the past.
+                  value:
+                    code: RULE_COMMENCEMENT_DATE_NOT_SUPPORTED
+                    message: The specified commencementDate must be in the past
+                RULE_PROPERTY_BUSINESS_ADDED:
+                  description: |
+                    A maximum of one property business for each type "uk-property", "foreign-property" and "property-unspecified" is allowed.
+                  value:
+                    code: RULE_PROPERTY_BUSINESS_ADDED
+                    message: The provided property business is already added
+                RULE_INCORRECT_OR_EMPTY_BODY_SUBMITTED:
+                  description: |
+                    An empty or non-matching body was submitted.
+                  value:
+                    code: RULE_INCORRECT_OR_EMPTY_BODY_SUBMITTED
+                    message: An empty or non-matching body was submitted
+                RULE_TAX_YEAR_RANGE_INVALID:
+                  description: Tax year range invalid. A tax year range of one year is required.
+                  value: &ref_13
+                    code: RULE_TAX_YEAR_RANGE_INVALID
+                    message: The tax year range is invalid
+                MISSING_FIRST_ACCOUNTING_PERIOD_START_DATE:
+                  description: When firstAccountingPeriodEndDate is provided, firstAccountingPeriodStartDate must also be provided.
+                  value:
+                    code: MISSING_FIRST_ACCOUNTING_PERIOD_START_DATE
+                    message: Missing firstAccountingPeriodStartDate value
+                MISSING_FIRST_ACCOUNTING_PERIOD_END_DATE:
+                  description: When firstAccountingPeriodStartDate is provided,  firstAccountingPeriodEndDate must also be provided.
+                  value:
+                    code: MISSING_FIRST_ACCOUNTING_PERIOD_END_DATE
+                    message: Missing firstAccountingPeriodEndDate value
+                RULE_FIRST_ACCOUNTING_DATE_RANGE_INVALID:
+                  description: The firstAccountingPeriodStartDate and firstAccountingPeriodEndDate must align with a single tax year - that is, the start date must be 6th April of one year and the end date must be 5th April of the following year.
+                  value:
+                    code: RULE_FIRST_ACCOUNTING_DATE_RANGE_INVALID
+                    message: The first accounting period is not a single complete tax year
+                RULE_UNEXPECTED_BUSINESS_ADDRESS:
+                  description: When creating a property business, you are not allowed to provide any businessAddress fields.
+                  value:
+                    code: RULE_UNEXPECTED_BUSINESS_ADDRESS
+                    message: Unexpected businessAddress provided for property business
+                RULE_MISSING_BUSINESS_ADDRESS:
+                  description: When creating a self-employment business, you need to provide values for businessAddressLineOne and businessAddressCountryCode.
+                  value:
+                    code: RULE_MISSING_BUSINESS_ADDRESS
+                    message: businessAddress not provided for the self-employment business
+                RULE_UNEXPECTED_TRADING_NAME:
+                  description: When creating a property business, you are not allowed to provide tradingName.
+                  value:
+                    code: RULE_UNEXPECTED_TRADING_NAME
+                    message: Unexpected tradingName provided for property business
+                RULE_MISSING_TRADING_NAME:
+                  description: When creating a self-employment business, you need to provide a tradingName value.
+                  value:
+                    code: RULE_MISSING_TRADING_NAME
+                    message: tradingName not provided for the self-employment business
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_5
+  /individuals/self-assessment-test-support/business/{nino}/{businessId}:
+    delete:
+      summary: Delete a Test Business
+      description: |
+        This endpoint allows a developer to delete a test business that they previously created.
+      tags:
+        - Business Income Source
+      parameters:
+        - name: nino
+          in: path
+          description: |
+            National Insurance number.
+          schema: *ref_10
+          required: true
+        - name: businessId
+          in: path
+          description: |
+            An identifier for the business, unique to the customer.
+          schema:
+            type: string
+            pattern: ^X[A-Z0-9]{1}IS[0-9]{11}$
+            example: XAIS12345678910
+          required: true
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_3
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_4
+          required: true
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      responses:
+        '204':
+          description: Success (No Content)
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+        '400':
+          description: Bad request
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO is not valid.
+                  value: *ref_6
+                FORMAT_BUSINESS_ID:
+                  description: |
+                    The format of the supplied Business ID field is not valid.
+                  value:
+                    code: FORMAT_BUSINESS_ID
+                    message: The provided Business ID is invalid
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_5
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: The remote endpoint has indicated that no data can be found for the given vendor.
+                  value: *ref_11
+  /individuals/self-assessment-test-support/itsa-status/{nino}/{taxYear}:
+    post:
+      summary: Create and Amend Test ITSA Status
+      description: |
+        This endpoint enables you to create and amend a test ITSA status for a specified customer for use within the sandbox environment. The ITSA status provided is used to validate periodic and annual submissions for the customer's income sources.
+
+        A National Insurance number and tax year must be provided.
+
+        Any test ITSA status is automatically purged from the database 7 days after its creation.
+      tags:
+        - ITSA Status
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      parameters:
+        - name: nino
+          in: path
+          description: |
+            National Insurance number.
+          schema: *ref_10
+          required: true
+        - name: taxYear
+          in: path
+          description: |
+            The tax year to submit data for. The start year and end year must not span two tax years. No gaps are allowed - for example, 2023-25 is not valid. There is no minimum tax year.
+          schema:
+            type: string
+            format: YYYY-YY
+            example: 2023-24
+          required: true
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_3
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_4
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $schema: https://json-schema.org/draft/2019-09/schema
+              $id: http://example.com/example.json
+              type: object
+              title: Root Schema
+              required:
+                - itsaStatusDetails
+              properties:
+                itsaStatusDetails:
+                  type: array
+                  descripton: An array of ITSA status details for a specific National Insurance number and tax year.
+                  items:
+                    type: object
+                    required:
+                      - submittedOn
+                      - status
+                      - statusReason
+                    properties:
+                      submittedOn:
+                        type: string
+                        description: The date the ITSA status was submitted, in the format YYYY-MM-DDThh:mm:ss.SSSZ
+                        examples: '2021-03-23T16:02:34.039Z'
+                        format: YYYY-MM-DDThh:mm:ss.SSSZ
+                      status:
+                        type: string
+                        description: The ITSA status for the tax year.
+                        enum:
+                          - No Status
+                          - MTD Mandated
+                          - MTD Voluntary
+                          - Annual
+                          - Non Digital
+                          - Dormant
+                          - MTD Exempt
+                      statusReason:
+                        type: string
+                        description: The reason for the ITSA status.
+                        enum:
+                          - Sign up - return available
+                          - Sign up - no return available
+                          - ITSA final declaration
+                          - ITSA Q4 declaration
+                          - CESA SA return
+                          - Complex
+                          - Ceased income source
+                          - Reinstated income source
+                          - Rollover
+                          - Income Source Latency Changes
+                          - MTD ITSA Opt-Out
+                          - MTD ITSA Opt-In
+                          - Digitally Exempt
+                      businessIncome2YearsPrior:
+                        type: number
+                        description: |-
+                          The business income for 2 years prior to the specified taxYear.
+
+                          For example, if the tax year requested is 2026-27, then 'businessIncome2YearsPrior' is for the 2024-25 tax year.
+
+                          For Q4 check, the business income 1 year prior will be used.
+                        minimum: 0
+                        maximum: 99999999999.99
+                        examples: 99999999999.99
+            examples:
+              example-itsa-status-request:
+                description: null
+                value:
+                  itsaStatusDetails:
+                    - submittedOn: '2021-03-23T16:02:34.039Z'
+                      status: MTD Mandated
+                      statusReason: Sign up - no return available
+                      businessIncome2YearsPrior: 4500.23
+      responses:
+        '204':
+          description: Success (No Content)
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content: {}
+        '400':
+          description: Bad Request
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO is not valid.
+                  value: *ref_6
+                FORMAT_TAX_YEAR:
+                  description: The format of the supplied taxYear value is not valid.
+                  value: *ref_12
+                RULE_TAX_YEAR_RANGE_INVALID:
+                  description: Tax year range invalid. A tax year range of one year is required.
+                  value: *ref_13
+                FORMAT_STATUS:
+                  description: The format of the supplied status is not valid.
+                  value:
+                    code: FORMAT_STATUS
+                    message: The provided status is invalid
+                FORMAT_STATUS_REASON:
+                  description: The format of the supplied status reason is not valid.
+                  value:
+                    code: FORMAT_STATUS_REASON
+                    message: The provided status reason is invalid
+                FORMAT_BUSINESS_INCOME_2_YEARS_PRIOR:
+                  description: The format of the supplied businessIncome2YearsPrior is not valid.
+                  value:
+                    code: FORMAT_BUSINESS_INCOME_2_YEARS_PRIOR
+                    message: The provided business Income 2 Years Prior is invalid
+                FORMAT_SUBMITTED_ON:
+                  description: The format of the supplied submittedOn date is not valid.
+                  value:
+                    code: FORMAT_SUBMITTED_ON
+                    message: The provided submitted on date is invalid
+                DUPLICATE_SUBMITTED_ON:
+                  description: Two or more of the supplied records have the same submittedOn value.
+                  value:
+                    code: DUPLICATE_SUBMITTED_ON
+                    message: The provided submittedOn values are not unique
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              name: X-CorrelationId
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_1
+                required: *ref_2
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client and/or agent is not authorised. This is normally because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_5
+components:
+  securitySchemes:
+    User-Restricted:
+      type: oauth2
+      description: HMRC supports OAuth 2.0 for authenticating [User-restricted](https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/user-restricted-endpoints) API requests
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.service.hmrc.gov.uk/oauth/authorize
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          refreshUrl: https://api.service.hmrc.gov.uk/oauth/refresh
+          scopes:
+            write:self-assessment: Grant write access
+            read:self-assessment: Grant read access
