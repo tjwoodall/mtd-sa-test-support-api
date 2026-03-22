@@ -21,14 +21,16 @@
     "firstAccountingPeriodStartDate": {
       "type": "string",
       "description": "The first accounting period start date",
-      "format": "YYYY-MM-DD",
-      "example": "2019-09-30"
+      "format": "date",
+      "example": "2019-09-30",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },
     "firstAccountingPeriodEndDate": {
       "type": "string",
       "description": "The first accounting period end date",
-      "format": "YYYY-MM-DD",
-      "example": "2020-02-29"
+      "format": "date",
+      "example": "2020-02-29",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },
     "latencyDetails": {
       "type": "object",
@@ -38,13 +40,14 @@
           "type": "string",
           "description": "End date of latency period for the income source.",
           "example": "2020-02-27",
-          "format": "YYYY-MM-DD"
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
         },
         "taxYear1": {
           "type": "string",
           "description": "First tax year for the income source.",
           "example": "2018-19",
-          "format": "YYYY-YY",
+          "format": "tax-year",
           "minimum": 7,
           "maximum": 7
         },
@@ -61,7 +64,7 @@
           "type": "string",
           "description": "Second tax year for the income source.",
           "example": "2019-20",
-          "format": "YYYY-YY",
+          "format": "tax-year",
           "minimum": 7,
           "maximum": 7
         },
@@ -98,7 +101,7 @@
       "taxYearOfChoice": {
         "description": "The tax year for which the quarterly period type was chosen.",
         "type": "string",
-        "format": "^2[0-9]{3}-[0-9]{2}$"
+        "format": "tax-year"
       }
     }
     },
@@ -113,14 +116,16 @@
     "commencementDate": {
       "description": "Business start date, must be in the past.",
       "type": "string",
-      "format": "YYYY-MM-DD",
-      "example": "2016-09-24"
+      "format": "date",
+      "example": "2016-09-24",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },
     "cessationDate": {
       "description": "Business cessation date.",
       "type": "string",
-      "format": "YYYY-MM-DD",
-      "example": "2020-03-24"
+      "format": "date",
+      "example": "2020-03-24",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },
     "businessAddressLineOne": {
       "description": "First line of the business address.\n\nForbidden for property businesses.\n\nMandatory for self-employment businesses.",
