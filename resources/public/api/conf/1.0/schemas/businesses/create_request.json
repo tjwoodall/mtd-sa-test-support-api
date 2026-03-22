@@ -48,8 +48,8 @@
           "description": "First tax year for the income source.",
           "example": "2018-19",
           "format": "tax-year",
-          "minimum": 7,
-          "maximum": 7
+          "minLength": 7,
+          "maxLength": 7
         },
         "latencyIndicator1": {
           "type": "string",
@@ -65,8 +65,8 @@
           "description": "Second tax year for the income source.",
           "example": "2019-20",
           "format": "tax-year",
-          "minimum": 7,
-          "maximum": 7
+          "minLength": 7,
+          "maxLength": 7
         },
         "latencyIndicator2": {
           "type": "string",
@@ -130,25 +130,25 @@
     "businessAddressLineOne": {
       "description": "First line of the business address.\n\nForbidden for property businesses.\n\nMandatory for self-employment businesses.",
       "type": "string",
-      "maximum": 35,
+      "maxLength": 35,
       "example": "1 ABC Rd."
     },
     "businessAddressLineTwo": {
       "description": "Second line of the business address.\n\nForbidden for property businesses.",
       "type": "string",
-      "maximum": 35,
+      "maxLength": 35,
       "example": "London"
     },
     "businessAddressLineThree": {
       "description": "Third line of the business address.\n\nForbidden for property businesses.",
       "type": "string",
-      "maximum": 35,
+      "maxLength": 35,
       "example": "Greater London"
     },
     "businessAddressLineFour": {
       "description": "Fourth line of the business address.\n\nForbidden for property businesses.",
       "type": "string",
-      "maximum": 35,
+      "maxLength": 35,
       "example": "United Kingdom"
     },
     "businessAddressPostcode": {
