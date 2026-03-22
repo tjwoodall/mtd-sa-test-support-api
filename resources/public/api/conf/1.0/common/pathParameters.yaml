@@ -39,6 +39,6 @@ components:
         The tax year to submit data for. The start year and end year must not span two tax years. No gaps are allowed - for example, 2023-25 is not valid. There is no minimum tax year.
       schema:
         type: string
-        format: "YYYY-YY"
+        format: "tax-year"
         example: "2023-24"
       required: true
