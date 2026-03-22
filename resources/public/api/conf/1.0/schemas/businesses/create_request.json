@@ -53,7 +53,7 @@
           "type": "string",
           "description": "First tax year for the income source.",
           "example": "2018-19",
-          "format": "YYYY-YY",
+          "format": "tax-year",
           "minLength": 7,
           "maxLength": 7
         },
@@ -70,7 +70,7 @@
           "type": "string",
           "description": "Second tax year for the income source.",
           "example": "2019-20",
-          "format": "YYYY-YY",
+          "format": "tax-year",
           "minLength": 7,
           "maxLength": 7
         },
@@ -109,6 +109,7 @@
           "description": "The tax year for which the quarterly period type was chosen.",
           "type": "string",
           "pattern": "^2[0-9]{3}-[0-9]{2}$",
+          "format": "tax-year",
           "example": "2023-24"
         }
       },
