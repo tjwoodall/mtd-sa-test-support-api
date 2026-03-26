@@ -201,13 +201,7 @@ paths:
                 example-response:
                   description: Example Response
                   value:
-                    checkpoints:
-                      - checkpointId: a1c8057e-fbbc-47a8-a8b4-78d9f015c253
-                        nino: TC663795B
-                        checkpointCreationTimestamp: '2019-07-13T07:51:43.112Z'
-                      - checkpointId: b2e4050e-fbbc-47a8-d5b4-65d9f015c253
-                        nino: RC972995B
-                        checkpointCreationTimestamp: '2019-07-13T08:12:01.571Z'
+                    $ref: ./examples/checkpoints/list_response.json
         '400':
           description: Bad Request
           headers:
@@ -323,7 +317,7 @@ paths:
                 example-response:
                   description: Example Response
                   value:
-                    checkpointId: a1e8057e-fbbc-47a8-a8b4-78d9f015c253
+                    $ref: ./examples/checkpoints/create_response.json
         '400':
           description: Bad Request
           headers:
@@ -845,64 +839,15 @@ paths:
               uk-property-request:
                 description: Create a UK property request
                 value:
-                  typeOfBusiness: uk-property
-                  firstAccountingPeriodStartDate: '2021-04-06'
-                  firstAccountingPeriodEndDate: '2022-04-05'
-                  latencyDetails:
-                    latencyEndDate: '2023-04-06'
-                    taxYear1: 2021-22
-                    latencyIndicator1: A
-                    taxYear2: 2022-23
-                    latencyIndicator2: Q
-                  quarterlyTypeChoice:
-                    quarterlyPeriodType: standard
-                    taxYearOfChoice: 2022-23
-                  accountingType: CASH
-                  commencementDate: '2020-04-06'
-                  cessationDate: '2025-04-06'
+                  $ref: ./examples/businesses/create_request_uk_property.json
               foreign-property-request:
                 description: Create a foreign property request
                 value:
-                  typeOfBusiness: foreign-property
-                  firstAccountingPeriodStartDate: '2021-04-06'
-                  firstAccountingPeriodEndDate: '2022-04-05'
-                  latencyDetails:
-                    latencyEndDate: '2023-04-06'
-                    taxYear1: 2021-22
-                    latencyIndicator1: A
-                    taxYear2: 2022-23
-                    latencyIndicator2: Q
-                  quarterlyTypeChoice:
-                    quarterlyPeriodType: standard
-                    taxYearOfChoice: 2023-24
-                  accountingType: CASH
-                  commencementDate: '2020-04-06'
-                  cessationDate: '2025-04-06'
+                  $ref: ./examples/businesses/create_request_foreign_property.json
               self-employment-business-request:
                 description: Create a self employment business request
                 value:
-                  typeOfBusiness: self-employment
-                  tradingName: MyBusiness Pvt Ltd
-                  firstAccountingPeriodStartDate: '2020-04-06'
-                  firstAccountingPeriodEndDate: '2021-04-05'
-                  latencyDetails:
-                    latencyEndDate: '2022-04-06'
-                    taxYear1: 2020-21
-                    latencyIndicator1: A
-                    taxYear2: 2021-22
-                    latencyIndicator2: Q
-                  quarterlyTypeChoice:
-                    quarterlyPeriodType: standard
-                    taxYearOfChoice: 2023-24
-                  accountingType: CASH
-                  commencementDate: '2020-04-06'
-                  cessationDate: '2025-04-06'
-                  businessAddressLineOne: 221b Baker Street
-                  businessAddressLineTwo: Marylebone
-                  businessAddressLineThree: London
-                  businessAddressLineFour: England
-                  businessAddressPostcode: NW1 6XE
-                  businessAddressCountryCode: GB
+                  $ref: ./examples/businesses/create_request_self_employment_business.json
       responses:
         '201':
           description: Success
@@ -932,7 +877,7 @@ paths:
                 example-response:
                   description: Example Response
                   value:
-                    businessId: XAIS12345678910
+                    $ref: ./examples/businesses/create_response.json
         '400':
           description: Bad request
           headers:
@@ -1325,11 +1270,7 @@ paths:
               example-itsa-status-request:
                 description: null
                 value:
-                  itsaStatusDetails:
-                    - submittedOn: '2021-03-23T16:02:34.039Z'
-                      status: MTD Mandated
-                      statusReason: Sign up - no return available
-                      businessIncome2YearsPrior: 4500.23
+                  $ref: ./examples/itsaStatus/create_amend_request.json
       responses:
         '204':
           description: Success (No Content)
