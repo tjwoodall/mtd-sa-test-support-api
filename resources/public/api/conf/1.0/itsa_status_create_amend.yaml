@@ -27,7 +27,6 @@ post:
           $ref: './schemas/itsaStatus/create_amend_request.json'
         examples:
           example-itsa-status-request:
-            description:
             externalValue: './examples/itsaStatus/create_amend_request.json'
 
   responses:
