@@ -687,6 +687,17 @@ paths:
                     - uk-property
                     - foreign-property
                     - property-unspecified
+                tradingType:
+                  type: string
+                  description: |-
+                    The type of trading carried out by the business.
+
+                    Forbidden for property businesses.
+
+                    Mandatory for self-employment businesses.
+                  minLength: 1
+                  maxLength: 35
+                  example: Plastering
                 tradingName:
                   type: string
                   description: |-
@@ -695,33 +706,35 @@ paths:
                     Forbidden for property businesses.
 
                     Mandatory for self-employment businesses.
+                  minLength: 1
+                  maxLength: 105
                   example: ABC Ltd.
                 firstAccountingPeriodStartDate:
                   type: string
-                  description: The first accounting period start date
-                  format: YYYY-MM-DD
+                  description: The first accounting period start date. Must conform to the format `YYYY-MM-DD`
+                  format: date
                   example: '2019-09-30'
                 firstAccountingPeriodEndDate:
                   type: string
-                  description: The first accounting period end date
-                  format: YYYY-MM-DD
+                  description: The first accounting period end date. Must conform to the format `YYYY-MM-DD`
+                  format: date
                   example: '2020-02-29'
                 latencyDetails:
                   type: object
-                  description: Income source latency details
+                  description: Income source latency details.
                   properties:
                     latencyEndDate:
                       type: string
-                      description: End date of latency period for the income source.
+                      description: End date of latency period for the income source. Must conform to the format `YYYY-MM-DD`
                       example: '2020-02-27'
-                      format: YYYY-MM-DD
+                      format: date
                     taxYear1:
                       type: string
                       description: First tax year for the income source.
                       example: 2018-19
                       format: YYYY-YY
-                      minimum: 7
-                      maximum: 7
+                      minLength: 7
+                      maxLength: 7
                     latencyIndicator1:
                       type: string
                       description: Self assessment submission frequency ('A' - Annual, 'Q' - Quarterly).
@@ -734,8 +747,8 @@ paths:
                       description: Second tax year for the income source.
                       example: 2019-20
                       format: YYYY-YY
-                      minimum: 7
-                      maximum: 7
+                      minLength: 7
+                      maxLength: 7
                     latencyIndicator2:
                       type: string
                       description: Self assessment submission frequency ('A' - Annual, 'Q' - Quarterly).
@@ -749,9 +762,10 @@ paths:
                     - latencyIndicator1
                     - taxYear2
                     - latencyIndicator2
+                  additionalProperties: false
                 quarterlyTypeChoice:
                   type: object
-                  description: Quarterly reporting period type
+                  description: Quarterly reporting period type.
                   properties:
                     quarterlyPeriodType:
                       description: The quarterly period type that is being chosen for the business ID.
@@ -762,7 +776,12 @@ paths:
                     taxYearOfChoice:
                       description: The tax year for which the quarterly period type was chosen.
                       type: string
-                      format: ^2[0-9]{3}-[0-9]{2}$
+                      pattern: ^2[0-9]{3}-[0-9]{2}$
+                      example: 2023-24
+                  required:
+                    - quarterlyPeriodType
+                    - taxYearOfChoice
+                  additionalProperties: false
                 accountingType:
                   description: CASH if you used the cash basis, money actually received and paid out, to calculate your income and expenses. Otherwise ACCRUALS.
                   type: string
@@ -770,14 +789,14 @@ paths:
                     - CASH
                     - ACCRUALS
                 commencementDate:
-                  description: Business start date, must be in the past.
+                  description: Business start date, must be in the past. Must conform to the format `YYYY-MM-DD`
                   type: string
-                  format: YYYY-MM-DD
+                  format: date
                   example: '2016-09-24'
                 cessationDate:
-                  description: Business cessation date.
+                  description: Business cessation date. Must conform to the format `YYYY-MM-DD`
                   type: string
-                  format: YYYY-MM-DD
+                  format: date
                   example: '2020-03-24'
                 businessAddressLineOne:
                   description: |-
@@ -787,7 +806,8 @@ paths:
 
                     Mandatory for self-employment businesses.
                   type: string
-                  maximum: 35
+                  minLength: 1
+                  maxLength: 35
                   example: 1 ABC Rd.
                 businessAddressLineTwo:
                   description: |-
@@ -795,7 +815,8 @@ paths:
 
                     Forbidden for property businesses.
                   type: string
-                  maximum: 35
+                  minLength: 1
+                  maxLength: 35
                   example: London
                 businessAddressLineThree:
                   description: |-
@@ -803,7 +824,8 @@ paths:
 
                     Forbidden for property businesses.
                   type: string
-                  maximum: 35
+                  minLength: 1
+                  maxLength: 35
                   example: Greater London
                 businessAddressLineFour:
                   description: |-
@@ -811,7 +833,8 @@ paths:
 
                     Forbidden for property businesses.
                   type: string
-                  maximum: 35
+                  minLength: 1
+                  maxLength: 35
                   example: United Kingdom
                 businessAddressPostcode:
                   description: |-
@@ -836,16 +859,13 @@ paths:
                 - typeOfBusiness
               additionalProperties: false
             examples:
-              uk-property-request:
-                description: Create a UK property request
+              Create a UK property request:
                 value:
                   $ref: ./examples/businesses/create_request_uk_property.json
-              foreign-property-request:
-                description: Create a foreign property request
+              Create a foreign property request:
                 value:
                   $ref: ./examples/businesses/create_request_foreign_property.json
-              self-employment-business-request:
-                description: Create a self employment business request
+              Create a self employment business request:
                 value:
                   $ref: ./examples/businesses/create_request_self_employment_business.json
       responses:
@@ -873,11 +893,8 @@ paths:
                     description: A unique identifier for the business income source.
                     pattern: ^X[A-Z0-9]{1}IS[0-9]{11}$
                 additionalProperties: false
-              examples:
-                example-response:
-                  description: Example Response
-                  value:
-                    $ref: ./examples/businesses/create_response.json
+              example:
+                businessId: XAIS12345678910
         '400':
           description: Bad request
           headers:
@@ -907,6 +924,11 @@ paths:
                   value:
                     code: FORMAT_TYPE_OF_BUSINESS
                     message: The provided typeOfBusiness field is invalid
+                FORMAT_STRING:
+                  description: The supplied string format is not valid.
+                  value:
+                    code: FORMAT_STRING
+                    message: The supplied string format is not valid
                 FORMAT_DATE:
                   description: |
                     The supplied date format is not valid.
@@ -996,6 +1018,16 @@ paths:
                   value:
                     code: RULE_MISSING_BUSINESS_ADDRESS
                     message: businessAddress not provided for the self-employment business
+                RULE_UNEXPECTED_TRADING_TYPE:
+                  description: When creating a property business, you are not allowed to provide tradingType.
+                  value:
+                    code: RULE_UNEXPECTED_TRADING_TYPE
+                    message: Unexpected tradingType provided for property business
+                RULE_MISSING_TRADING_TYPE:
+                  description: When creating a self-employment business, you need to provide a tradingType value.
+                  value:
+                    code: RULE_MISSING_TRADING_TYPE
+                    message: tradingType not provided for the self-employment business
                 RULE_UNEXPECTED_TRADING_NAME:
                   description: When creating a property business, you are not allowed to provide tradingName.
                   value:
